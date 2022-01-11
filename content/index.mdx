@@ -1,0 +1,280 @@
+# Foundry
+
+> 2022.01.11
+
+[github.com/sambacha/foundry-quickstart](https://github.com/sambacha/foundry-quickstart)
+
+## Summary
+
+You will:
+- Install `forge` and `cast`
+- Configure a development environment
+- Deploy a contract to Rinkeby
+
+
+## Quickstart - MacOS
+
+Run the quickstart install scripts - This will download prebuilt binaries for MacOS
+
+```sh
+./foundry-setup/init-foundry.sh
+```
+
+```sh
+https://raw.githubusercontent.com/sambacha/foundry-quickstart/master/foundry-setup/init-foundry.sh
+```
+
+
+
+## Configuring your `.dapprc` 
+
+```sh
+# Make dependencies available
+export DAPP_REMAPPINGS=$(cat remappings.txt)
+
+export DAPP_SOLC_VERSION=0.8.7
+# If you're getting an "invalid character at offset" error, comment this out.
+export DAPP_LINK_TEST_LIBRARIES=0
+export DAPP_TEST_VERBOSITY=1
+export DAPP_TEST_SMTTIMEOUT=500000
+
+# Optimize your contracts before deploying to reduce runtime execution costs.
+# Check out the docs to learn more: https://docs.soliditylang.org/en/v0.8.9/using-the-compiler.html#optimizer-options
+# export DAPP_BUILD_OPTIMIZE=1
+# export DAPP_BUILD_OPTIMIZE_RUNS=1000000
+
+# set so that we can deploy to local node w/o hosted private keys
+# export ETH_RPC_ACCOUNTS=true
+# Your JSON-RPC Provider
+export ETH_RPC_URL=http://localhost:8545
+export ETH_FROM=YOUR_DEFAULT_SENDER_ACCOUNT
+
+#export ALCHEMY_API_KEY=YOUR_API_KEY
+#export ETHERSCAN_API_KEY=YOUR_API_KEY
+
+```
+
+### Hardhat Support 
+
+```sh
+ --hardhat uses hardhat style project layout. This a convenience flag and is the same as `--contracts
+
+```
+
+### Deploying Contracts
+
+```makefile
+# Deployment helper
+deploy :; ./scripts/deploy.sh
+
+# mainnet
+deploy-mainnet: export ETH_RPC_URL = $(call network,mainnet)
+deploy-mainnet: export NETWORK=mainnet
+deploy-mainnet: check-api-key deploy
+
+# kovan
+deploy-kovan: export ETH_RPC_URL = $(call network,kovan)
+deploy-kovan: export NETWORK=kovan
+deploy-kovan: check-api-key deploy
+
+# rinkeby
+deploy-rinkeby: export ETH_RPC_URL = $(call network,rinkeby)
+deploy-rinkeby: export NETWORK=rinkeby
+deploy-rinkeby: check-api-key deploy
+```
+
+### Utilites
+
+Remappings
+
+```sh
+ds-test/=$(pwd)/lib/ds-test/src/
+```
+
+passing state to ds-test
+
+```sh
+export DAPP_LIBRARIES=$(dapp --library-addresses)
+export DAPP_TEST_STATE=$(dapp --make-library-state)
+```
+
+
+
+
+#### Forge CLI 
+
+Menu 
+
+```sh
+    --allow-failure <allow-failure>
+        if set to true, the process will exit with an exit code = 0, even if the tests fail [env:
+        FORGE_ALLOW_FAILURE=]
+    --block-base-fee-per-gas <block-base-fee-per-gas>    the base fee in a block [default: 0]
+    --block-coinbase <block-coinbase>
+        the block.coinbase value during EVM execution [default: 0x0000000000000000000000000000000000000000]
+
+    --block-difficulty <block-difficulty>
+        the block.difficulty value during EVM execution [default: 0]
+
+    --block-gas-limit <block-gas-limit>                  the block.gaslimit value during EVM execution
+    --block-number <block-number>
+        the block.number value during EVM execution [env: DAPP_TEST_NUMBER=]  [default: 0]
+
+    --block-timestamp <block-timestamp>
+        the block.timestamp value during EVM execution [env: DAPP_TEST_TIMESTAMP=]  [default: 0]
+
+    --chain-id <chain-id>                                the chainid opcode value [default: 1]
+-c, --contracts <contracts>
+        the directory relative to the root under which the smart contracts are [env: DAPP_SRC=]
+
+-e, --evm-type <evm-type>
+        the EVM type you want to use (e.g. sputnik, evmodin) [default: sputnik]
+
+    --evm-version <evm-version>                          choose the evm version [default: london]
+    --fork-block-number <fork-block-number>
+        pins the block number for the state fork [env: DAPP_FORK_BLOCK=]
+
+-f, --fork-url <fork-url>
+        fetch state over a remote instead of starting from empty state
+
+    --gas-limit <gas-limit>                              the block gas limit [default: 18446744073709551615]
+    --gas-price <gas-price>                              the tx.gasprice value during EVM execution [default: 0]
+    --initial-balance <initial-balance>
+        the initial balance of each deployed test contract [default: 0xffffffffffffffffffffffff]
+
+    --lib-paths <lib-paths>...                           the paths where your libraries are installed
+    --libraries <libraries>...                           add linked libraries
+    --optimize-runs <optimize-runs>                      optimizer parameter runs [default: 200]
+-o, --out <out-path>                                     path to where the contract artifacts are stored
+-m, --match <pattern>                                    only run test methods matching regex [default: .*]
+-r, --remappings <remappings>...                         the remappings
+    --remappings-env <remappings-env>                     [env: DAPP_REMAPPINGS=]
+```
+
+
+## Cast operations
+
+For the first two operations you can use either your own testnet or the Kovan testnet - try both if you want to!
+
+### cast balance - Checking ETH balance
+
+Checking ETH balances is pretty straight forward. It can be done with the balance subcommand, then specifying the address as a parameter:
+
+`$ cast balance $ETH_FROM`
+
+### cast send - Sending ETH
+
+```sh
+USAGE:
+    cast send <to> <sig> --chain <chain> --mnemonic_index <mnemonic-index>
+```
+
+Let’s send Kovan or private net ETH to an addres
+
+`$ cast send --value 0.1 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359`
+
+Upon execution you should see something like the following:
+
+    cast-send: warning: `ETH_GAS' not set; using default gas amount
+    cast-send: Published transaction with 0 bytes of calldata.
+    cast-send: 0x000000…
+    cast-send: Waiting for transaction receipt.......
+    cast-send: Transaction included in block xxxxxx.
+
+This indicates that the transaction was successful.
+
+### cast call - Reading contract storage
+
+Since you don't have any contracts deployed to your private network, **let's use Kovan from now on**. Let’s use one of the simplest contracts possible: an ERC-20 token contract. In this example, you are going to use a test collateral token (BAT). You can save its address in a variable with the following command:
+
+`$ export BAT=0x9f8cfb61d3b2af62864408dd703f9c3beb55dff7`
+
+You can read the output of a public function of a contract using the call subcommand, the contract’s address, and the name of the function.
+
+Let's check out the number of decimals of this token:
+
+`cast call $BAT 'decimals()'`
+
+The output is:
+
+`0x0000000000000000000000000000000000000000000000000000000000000012`
+
+Now don't let this fool you. Cast queries contract data in a low level manner, and returns the value in hexadecimal, as it is represented in the contract, but you can convert it using:
+
+`$ cast --to-dec $(cast call $BAT 'decimals()')`
+
+The output is:
+
+`18`
+
+### Sending contract transaction with cast send
+
+You can send a transaction to a contract with the same send command, by adding a couple of extra parameters. Just like with call, you need to specify the contract address and the function we are calling. Let’s get some COL1 tokens from a previously set up faucet:
+
+`$ export FAUCET=0x94598157fcf0715c3bc9b4a35450cce82ac57b20`
+
+`$ cast send $FAUCET ‘gulp(address)’ $BAT`
+
+### Using function parameters
+
+Now you can check your COL1 balance. This time you will need to present a parameter for the ‘balanceOf’ method of the ERC-20 contract. You can do this by first defining the type, the function takes in its parentheses, and then putting the input parameter after the method:
+
+`$ cast --to-dec $(cast call $BAT 'balanceOf(address)' $ETH_FROM)`
+
+The output is:
+
+`500000000000000000000`
+
+Now, that's a rather large value you got. The reason for this is that the contract stores the balances in wei unit (10^-18), which is why you have to convert it to get the actual number of BAT you own:
+
+`$ cast --from-wei $(cast --to-dec $(cast call $BAT 'balanceOf(address)' $ETH_FROM)) eth`
+
+The output is:
+
+`50.000000000000000000`
+
+### cast block - Retrieving block information
+
+With cast block, you are capable of querying any information about an Ethereum block. Here is the usage from the help option `$ cast block --help`:
+
+```
+    Usage: cast block [-j|--json] <block> [<field>] 
+    Print a table of information about <block>.
+    If <field> is given, print only the value of that field.
+```
+
+Like any other Cast command, this command depends on Ethereum JSON RPC calls,
+What can come in handy is the fact that in place of a block number, you can also use:
+
+`earliest`, `latest` or `pending`. 
+
+> export ETH_RPC_URL=https://rinkeby.infura.io/v3/279250a200db4ef6b677589a6eec2f55
+
+`$  cast block --rpc-url https://rinkeby.infura.io/v3/279250a200db4ef6b677589a6eec2f55 latest`
+
+Output:
+
+```
+baseFeePerGas        "0x9"
+difficulty           "0x2"
+extraData            "0xd883010a0f846765746888676f312e31372e35856c696e757800000000000000684802a3075f1b10c2af99c672cab93fe2f2bc9128c9b6c5c36c9feedc78135d1bfc8790d19f7fca5d5bf402938c5eeaf251ef3adee6092d7595f2ca1efaedb900"
+gasLimit             "0x1c9c380"
+gasUsed              "0x230601"
+hash                 "0x6722db65e680b050eeb9370d67667385e3c2b6a25d880fca4a112daabba92325"
+logsBloom            "0x240000000008101020004000a000080000006084c000010002002080000000020100004040010008000000814800000000200020046800800830040000262001000000000080000000080048002000000000030c141400000028100000000080004000000200000080900080000008020000080000800020000000100002000084001102000480002101040004000000000200022200400000001000144040000200000000006000000001500000000200000000002000000000082a000840081002000200000000000110808030000000000124002200100200120000007400001004188100024100040000000100812000000000900a000010020100000201"
+miner                "0x0000000000000000000000000000000000000000"
+mixHash              "0x0000000000000000000000000000000000000000000000000000000000000000"
+nonce                "0x0"
+number               "0x9835cf"
+parentHash           "0x71f9b6a08a28272757e8dc1b84403c93495b73aa308937389a2f4da20a108420"
+receiptsRoot         "0x4e9c15199c360b9fde0e861f4a825a88827391e376779ab86af74dc7f1c34a51"
+sealFields           []
+sha3Uncles           "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347"
+size                 "0x20aa"
+stateRoot            "0x7c6df3176b6ddd493b7d4984226ee1213d58f7c1c1048f4e0ca710a87f93e7cd"
+timestamp            "0x61de0a1a"
+totalDifficulty      "0xfe7abd"
+transactions         ["0xaaa37e1372b51d5f34996da5b8a1d9c280427d4ab9c9759536569743e530b91c","0x95fd9aa5e868bb3c55a808d8d63a61649e2d99d54c8929094c8f36d562ea728b","0xf8282ad8cf7f752a1b27394b88cdc6cb4bf24bde7e51b293894a9a4df22afa0d","0x7e27e1b62b5638abb9e2190379b148118450da2d164e23463c7013321c9df6b3","0x8ad158dffdc379d4be0dc00be04e78b9e11af5ae4e19f48cc83599d56ebe31af","0x440d8ca464f5c4cc0070502dad609d7724e2a5750593790634d5f97a711acd9e","0xb3ec9677bee14adc29349a9d2eb6a6222c6636843c6b1425f14135ab52b0b9c0","0x00d44156fdaf00c647d75827e2947db4e1fbe705145db73aa9dd911ad6634b90","0xe6df301f191b9bcf7539695b9a334976df34ab70c2610acecbc010696f239bcb","0x5a78c2a3f6db708044a469f88ca3941c650fb4145e4f4f5ab09aef76c8d5830b","0x7b28825b9715a295a665b4306542a339cb429c073957d84df6b947895b419844","0x3ff3329530a423d56851e305b101cda5759efc88c0b48d0085ed73bb5fed8f2f","0xbfe2a0fab9d059d0cbe33478b6af339bbdd531ec39f25685dc56c0c9f31a32a6","0xb90c3015f8aaf365b44e1eeaff8205e096974b4c3ad4912f935d94d71a10baa9","0xb7b4daa150575eed8d61d75a6747b81c032cf385caba39f2b8cc69ad5c329f72","0x2c4c5267518ad7afd2c6f1170abdb7d7063294482408d388c15d165ba06a60ca","0xb155e0797fbc9bae49233615e31388aea8069814dd357899fd9fe37a793e66f9","0x288499c1bb79663e0711f7dca2a10179c8f4fefccac54f2dbdadfff7ef6200b9","0xa8d20f6d386a4b4703ffb555f1afde3565a99547ab6bb01123bf586eeae4211c","0xfd4f404ffb6b85c7a1b7a235cc2a1b9fa7cd5aadf469958747561a5dc4e6f3e4","0x3b8c74793bf3c44ce05f17c1d75813b3378e50d2d0c706dd089d4e74b1ad8cc2","0xaa456bc0f2e455f710987fd5819bd8e5b8ea8827cbbd3e83f0a6dae44636bee8","0x831acae423e78ad4f324e68fa554dbe1c29193d0df80d3ee736d5927b5a444a9","0x8050cb504e44fc2c3fb08162bad18d56e16b405619ace0e6d1f1f93284010fb0","0xc9827e69e4e99b524306e17d7f22d658c46bcf80a7925f6423752c8b61b6e8e8","0xce68886c3d4efaf7e77305b3fcbb4964552868c9f950b8a628a0a864b6abf877"]
+transactionsRoot     "0x3edb881864df5437afe6fed1e99af39e7d1b6eb095807eaf9681d52331fb5fc5"
+uncles               []
+```

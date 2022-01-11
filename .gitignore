@@ -1,0 +1,9 @@
+.next
+node_modules
+out
+.DS_Store
+*.tar.gz
+*.log
+*.error
+
+.vercel
