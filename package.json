@@ -1,4 +1,9 @@
 {
+  "name": "foundry-quickstart",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "next.config.js",
   "scripts": {
     "dev": "next",
     "build": "next build"
@@ -10,5 +15,17 @@
     "next": "^12.0.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sambacha/foundry-quickstart.git"
+  },
+  "keywords": [],
+  "author": "SEE CONTRIBUTORS",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/sambacha/foundry-quickstart/issues"
+  },
+  "homepage": "https://github.com/sambacha/foundry-quickstart#readme"
 }
