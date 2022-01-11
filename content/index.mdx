@@ -1,0 +1,227 @@
+# Code and Focus
+
+## Quickstart - MacOS
+
+
+## Configuring your `.dapprc` 
+
+```sh
+# Make dependencies available
+export DAPP_REMAPPINGS=$(cat remappings.txt)
+
+export DAPP_SOLC_VERSION=0.8.7
+# If you're getting an "invalid character at offset" error, comment this out.
+export DAPP_LINK_TEST_LIBRARIES=0
+export DAPP_TEST_VERBOSITY=1
+export DAPP_TEST_SMTTIMEOUT=500000
+
+# Optimize your contracts before deploying to reduce runtime execution costs.
+# Check out the docs to learn more: https://docs.soliditylang.org/en/v0.8.9/using-the-compiler.html#optimizer-options
+# export DAPP_BUILD_OPTIMIZE=1
+# export DAPP_BUILD_OPTIMIZE_RUNS=1000000
+
+# set so that we can deploy to local node w/o hosted private keys
+# export ETH_RPC_ACCOUNTS=true
+# Your JSON-RPC Provider
+export ETH_RPC_URL=http://localhost:8545
+export ETH_FROM=YOUR_DEFAULT_SENDER_ACCOUNT
+
+
+#export ALCHEMY_API_KEY=YOUR_API_KEY
+#export ETHERSCAN_API_KEY=YOUR_API_KEY
+
+```
+
+It works by default with many languages
+
+```sh
+ --hardhat uses hardhat style project layout. This a convenience flag and is the same as `--contracts
+
+```
+
+### Deploying Contracts
+
+```makefile
+# Deployment helper
+deploy :; ./scripts/deploy.sh
+
+# mainnet
+deploy-mainnet: export ETH_RPC_URL = $(call network,mainnet)
+deploy-mainnet: export NETWORK=mainnet
+deploy-mainnet: check-api-key deploy
+
+# kovan
+deploy-kovan: export ETH_RPC_URL = $(call network,kovan)
+deploy-kovan: export NETWORK=kovan
+deploy-kovan: check-api-key deploy
+
+# rinkeby
+deploy-rinkeby: export ETH_RPC_URL = $(call network,rinkeby)
+deploy-rinkeby: export NETWORK=rinkeby
+deploy-rinkeby: check-api-key deploy
+```
+
+### Utilites
+
+Remappings
+
+```sh
+ds-test/=$(pwd)/lib/ds-test/src/
+```
+
+passing state to ds-test
+
+```sh
+export DAPP_LIBRARIES=$(dapp --library-addresses)
+export DAPP_TEST_STATE=$(dapp --make-library-state)
+```
+
+
+
+
+#### Forge CLI 
+
+Menu 
+
+```sh
+    --allow-failure <allow-failure>
+        if set to true, the process will exit with an exit code = 0, even if the tests fail [env:
+        FORGE_ALLOW_FAILURE=]
+    --block-base-fee-per-gas <block-base-fee-per-gas>    the base fee in a block [default: 0]
+    --block-coinbase <block-coinbase>
+        the block.coinbase value during EVM execution [default: 0x0000000000000000000000000000000000000000]
+
+    --block-difficulty <block-difficulty>
+        the block.difficulty value during EVM execution [default: 0]
+
+    --block-gas-limit <block-gas-limit>                  the block.gaslimit value during EVM execution
+    --block-number <block-number>
+        the block.number value during EVM execution [env: DAPP_TEST_NUMBER=]  [default: 0]
+
+    --block-timestamp <block-timestamp>
+        the block.timestamp value during EVM execution [env: DAPP_TEST_TIMESTAMP=]  [default: 0]
+
+    --chain-id <chain-id>                                the chainid opcode value [default: 1]
+-c, --contracts <contracts>
+        the directory relative to the root under which the smart contracts are [env: DAPP_SRC=]
+
+-e, --evm-type <evm-type>
+        the EVM type you want to use (e.g. sputnik, evmodin) [default: sputnik]
+
+    --evm-version <evm-version>                          choose the evm version [default: london]
+    --fork-block-number <fork-block-number>
+        pins the block number for the state fork [env: DAPP_FORK_BLOCK=]
+
+-f, --fork-url <fork-url>
+        fetch state over a remote instead of starting from empty state
+
+    --gas-limit <gas-limit>                              the block gas limit [default: 18446744073709551615]
+    --gas-price <gas-price>                              the tx.gasprice value during EVM execution [default: 0]
+    --initial-balance <initial-balance>
+        the initial balance of each deployed test contract [default: 0xffffffffffffffffffffffff]
+
+    --lib-paths <lib-paths>...                           the paths where your libraries are installed
+    --libraries <libraries>...                           add linked libraries
+    --optimize-runs <optimize-runs>                      optimizer parameter runs [default: 200]
+-o, --out <out-path>                                     path to where the contract artifacts are stored
+-m, --match <pattern>                                    only run test methods matching regex [default: .*]
+-r, --remappings <remappings>...                         the remappings
+    --remappings-env <remappings-env>                     [env: DAPP_REMAPPINGS=]
+```
+
+
+## Cast operations
+
+For the first two operations you can use either your own testnet or the Kovan testnet - try both if you want to!
+
+### cast balance - Checking ETH balance
+
+Checking ETH balances is pretty straight forward. It can be done with the balance subcommand, then specifying the address as a parameter:
+
+`$ cast balance $ETH_FROM`
+
+### cast send - Sending ETH
+
+Let’s send Kovan or private net ETH to an address. You can choose any valid address - in this example I am going to use [Ethereum Foundation's donation address](https://www.ethereum.org/donate):
+
+`$ cast send --value 0.1 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359`
+
+Upon execution you should see something like the following:
+
+    cast-send: warning: `ETH_GAS' not set; using default gas amount
+    cast-send: Published transaction with 0 bytes of calldata.
+    cast-send: 0x000000…
+    cast-send: Waiting for transaction receipt.......
+    cast-send: Transaction included in block xxxxxx.
+
+This indicates that the transaction was successful.
+
+### cast call - Reading contract storage
+
+Since you don't have any contracts deployed to your private network, **let's use Kovan from now on**. Let’s use one of the simplest contracts possible: an ERC-20 token contract. In this example, you are going to use a test collateral token (BAT). You can save its address in a variable with the following command:
+
+`$ export BAT=0x9f8cfb61d3b2af62864408dd703f9c3beb55dff7`
+
+You can read the output of a public function of a contract using the call subcommand, the contract’s address, and the name of the function.
+
+Let's check out the number of decimals of this token:
+
+`cast call $BAT 'decimals()'`
+
+The output is:
+
+`0x0000000000000000000000000000000000000000000000000000000000000012`
+
+Now don't let this fool you. Seth queries contract data in a low level manner, and returns the value in hexadecimal, as it is represented in the contract, but you can convert it using:
+
+`$ cast --to-dec $(cast call $BAT 'decimals()')`
+
+The output is:
+
+`18`
+
+### Sending contract transaction with cast send
+
+You can send a transaction to a contract with the same send command, by adding a couple of extra parameters. Just like with call, you need to specify the contract address and the function we are calling. Let’s get some COL1 tokens from a previously set up faucet:
+
+`$ export FAUCET=0x94598157fcf0715c3bc9b4a35450cce82ac57b20`
+
+`$ cast send $FAUCET ‘gulp(address)’ $BAT`
+
+### Using function parameters
+
+Now you can check your COL1 balance. This time you will need to present a parameter for the ‘balanceOf’ method of the ERC-20 contract. You can do this by first defining the type, the function takes in its parentheses, and then putting the input parameter after the method:
+
+`$ cast --to-dec $(cast call $BAT 'balanceOf(address)' $ETH_FROM)`
+
+The output is:
+
+`500000000000000000000`
+
+Now, that's a rather large value you got. The reason for this is that the contract stores the balances in wei unit (10^-18), which is why you have to convert it to get the actual number of BAT you own:
+
+`$ cast --from-wei $(cast --to-dec $(cast call $BAT 'balanceOf(address)' $ETH_FROM)) eth`
+
+The output is:
+
+`50.000000000000000000`
+
+### cast block - Retrieving block information
+
+With cast block, you are capable of querying any information about an Ethereum block. Here is the usage from the help option `$ cast block --help`:
+
+```
+    Usage: cast block [-j|--json] <block> [<field>] 
+    Print a table of information about <block>.
+    If <field> is given, print only the value of that field.
+```
+
+Like any other Seth command, this command depends on Ethereum JSON RPC calls, which are part of the interface of any Ethereum client. You can dive into the corresponding documentation ([https://github.com/ethereum/wiki/wiki/JSON-RPC](https://github.com/ethereum/wiki/wiki/JSON-RPC)) to learn more about it.
+
+What can come in handy is the fact that in place of a block number, you can also use earliest, latest or pending. So if you would like to query the current block gas limit (I have tried this with cast configured for the kovan testnet) you can do the following:
+
+`$ cast block latest gasLimit`
+
+Output:
+
+`8000000`

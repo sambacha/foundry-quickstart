@@ -1,9 +1,9 @@
-import Foo from "../content/foo.mdx";
+import Index from "../content/index.mdx";
 
 export default function Page() {
   return (
     <div style={{ width: 900, margin: "0 auto" }}>
-      <Foo />
+      <Index />
     </div>
   );
 }
