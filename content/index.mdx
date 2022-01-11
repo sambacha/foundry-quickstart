@@ -1,6 +1,14 @@
-# Code and Focus
+# Foundry
+
+> 2022.01.11
 
 ## Quickstart - MacOS
+
+Run the quickstart install scripts - This will download prebuilt binaries for MacOS
+
+```sh
+./foundry-setup/init-foundry.sh
+```
 
 
 ## Configuring your `.dapprc` 
@@ -142,7 +150,12 @@ Checking ETH balances is pretty straight forward. It can be done with the balanc
 
 ### cast send - Sending ETH
 
-Let’s send Kovan or private net ETH to an address. You can choose any valid address - in this example I am going to use [Ethereum Foundation's donation address](https://www.ethereum.org/donate):
+```sh
+USAGE:
+    cast send <to> <sig> --chain <chain> --mnemonic_index <mnemonic-index>
+```
+
+Let’s send Kovan or private net ETH to an addres
 
 `$ cast send --value 0.1 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359`
 
